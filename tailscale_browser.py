@@ -6,11 +6,24 @@ from typing import Dict, List, Optional, Tuple
 from PyQt5 import QtCore, QtGui, QtWebEngineWidgets, QtWidgets
 
 # Load unsecure tailscale instances
-os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--ignore-certificate-errors"
+chromium_flags = [
+    "--ignore-certificate-errors",
+    "--disable-features=TranslateUI",
+    "--disable-web-security",
+]
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = " ".join(chromium_flags)
 
 APP_NAME = "Tailscale Browser"
 CONFIG_FILE = os.path.join(os.path.expanduser("~"), ".tailscale_browser")
 PRIMARY_COLOR = "#7c3aed"  # Nice shade of purple
+# Dark mode colors similar to Chrome
+DARK_BG = "#202124"
+DARK_TAB_BAR = "#323639"
+DARK_TAB_ACTIVE = "#323639"
+DARK_TAB_INACTIVE = "#202124"
+DARK_TEXT = "#e8eaed"
+DARK_BUTTON = "#3c4043"
+DARK_BUTTON_HOVER = "#5f6368"
 
 
 def load_recent() -> List[Dict[str, str]]:
@@ -60,17 +73,30 @@ def save_config(config: dict) -> None:
 
 
 class InsecureWebEnginePage(QtWebEngineWidgets.QWebEnginePage):
-    """ Custom QWebEnginePage that accepts all SSL certificate errors (insecure!)."""
+    """Custom QWebEnginePage that accepts all SSL certificate errors and enables dark mode."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        # Set dark background color for the page
+        self.setBackgroundColor(QtGui.QColor(DARK_BG))
+
     def certificateError(self, error):
         error.ignoreCertificateError()
         return True
+
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        # Suppress console messages to reduce noise
+        pass
 
 
 class AddTabDialog(QtWidgets.QDialog):
     """
     Dialog for adding a new browser tab. Allows picking from recent or entering new address.
     """
-    def __init__(self, recent: List[Dict[str, str]], parent: Optional[QtWidgets.QWidget] = None) -> None:
+
+    def __init__(
+        self, recent: List[Dict[str, str]], parent: Optional[QtWidgets.QWidget] = None
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle("Add New Tab")
         self.setMinimumWidth(400)
@@ -91,7 +117,6 @@ class AddTabDialog(QtWidgets.QDialog):
         layout.addWidget(QtWidgets.QLabel("URL or IP:"))
         layout.addWidget(self.url_edit)
 
-
         # Pre-fill fields if there is at least one recent item
         if recent:
             self.fill_fields(0)
@@ -109,8 +134,8 @@ class AddTabDialog(QtWidgets.QDialog):
         """Fill name and url fields from selected recent item."""
         if idx >= 0 and idx < len(self.recent):
             item = self.recent[idx]
-            self.name_edit.setText(item['name'])
-            self.url_edit.setText(item['url'])
+            self.name_edit.setText(item["name"])
+            self.url_edit.setText(item["url"])
 
     def clear_fields(self, _: str) -> None:
         """Clear name and url fields when editing combobox."""
@@ -128,41 +153,159 @@ class AddTabDialog(QtWidgets.QDialog):
 
 class BrowserTab(QtWidgets.QWidget):
     """
-    A single browser tab containing a QWebEngineView.
+    A single browser tab containing a QWebEngineView with dark mode support.
     """
+
     def __init__(self, url: str, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
         layout = QtWidgets.QVBoxLayout(self)
         self.webview = QtWebEngineWidgets.QWebEngineView()
+
         # Use the insecure page to allow self-signed/invalid certs
         self.webview.setPage(InsecureWebEnginePage(self.webview))
+
+        # Set dark background for the webview itself
+        self.webview.setStyleSheet(f"background-color: {DARK_BG};")
+
         # Set a default home page if url is empty
         if not url or url.strip() == "":
             url = "about:blank"
-        self.webview.setUrl(QtCore.QUrl(url))
+
+        # Set initial dark page content for about:blank
+        if url == "about:blank":
+            self._set_dark_blank_page()
+        else:
+            self.webview.setUrl(QtCore.QUrl(url))
+
         layout.addWidget(self.webview)
         layout.setContentsMargins(0, 0, 0, 0)
 
+    def _set_dark_blank_page(self):
+        """Set a dark-themed blank page."""
+        dark_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{
+                    background-color: {DARK_BG};
+                    color: {DARK_TEXT};
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin: 0;
+                    padding: 40px;
+                    text-align: center;
+                }}
+                .message {{
+                    margin-top: 100px;
+                    opacity: 0.7;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="message">
+                <h2>Tailscale Browser</h2>
+                <p>Add a new tab to get started</p>
+            </div>
+        </body>
+        </html>
+        """
+        self.webview.setHtml(dark_html)
+
 
 class MainWindow(QtWidgets.QMainWindow):
-
     """
     Main application window for Tailscale Browser.
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QtGui.QIcon(self.resource_path("icon.svg")))
         self.resize(1200, 800)
         self.showMaximized()
-        self.setStyleSheet(f"""
-            QMainWindow {{ background: #f5f3ff; }}
-            QTabWidget::pane {{ border: none; }}
-            QTabBar::tab:selected {{ background: {PRIMARY_COLOR}; color: white; }}
-            QTabBar::tab:!selected {{ background: #ede9fe; color: #22223b; }}
-            QPushButton {{ background: {PRIMARY_COLOR}; color: white; border-radius: 6px; padding: 6px; }}
-            QPushButton:hover {{ background: #a78bfa; }}
-        """)
+        # Chrome-like dark mode styling
+        self.setStyleSheet(
+            f"""
+            QMainWindow {{
+                background: {DARK_BG};
+                color: {DARK_TEXT};
+            }}
+            QTabWidget::pane {{
+                border: none;
+                background: {DARK_BG};
+            }}
+            QTabBar {{
+                background: {DARK_TAB_BAR};
+            }}
+            QTabBar::tab:selected {{
+                background: {DARK_TAB_ACTIVE};
+                color: {DARK_TEXT};
+                border: none;
+                padding: 8px 16px;
+                margin-right: 2px;
+            }}
+            QTabBar::tab:!selected {{
+                background: {DARK_TAB_INACTIVE};
+                color: #9aa0a6;
+                border: none;
+                padding: 8px 16px;
+                margin-right: 2px;
+            }}
+            QTabBar::tab:hover:!selected {{
+                background: #3c4043;
+                color: {DARK_TEXT};
+            }}
+            QPushButton {{
+                background: {DARK_BUTTON};
+                color: {DARK_TEXT};
+                border: 1px solid #5f6368;
+                border-radius: 4px;
+                padding: 8px 16px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background: {DARK_BUTTON_HOVER};
+                border-color: #8ab4f8;
+            }}
+            QDialog {{
+                background: {DARK_BG};
+                color: {DARK_TEXT};
+            }}
+            QLabel {{
+                color: {DARK_TEXT};
+            }}
+            QLineEdit {{
+                background: #3c4043;
+                color: {DARK_TEXT};
+                border: 1px solid #5f6368;
+                border-radius: 4px;
+                padding: 8px;
+            }}
+            QLineEdit:focus {{
+                border-color: #8ab4f8;
+            }}
+            QComboBox {{
+                background: #3c4043;
+                color: {DARK_TEXT};
+                border: 1px solid #5f6368;
+                border-radius: 4px;
+                padding: 8px;
+            }}
+            QComboBox:focus {{
+                border-color: #8ab4f8;
+            }}
+            QComboBox::drop-down {{
+                border: none;
+            }}
+            QComboBox::down-arrow {{
+                image: none;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid {DARK_TEXT};
+                margin-right: 10px;
+            }}
+        """
+        )
         self.config: dict = load_config()
         # Create the main tab widget
         self.tabs = QtWidgets.QTabWidget()
@@ -193,7 +336,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.progress.setTextVisible(False)
         self.progress.setValue(0)
         self.progress.setVisible(False)
-        self.progress.setStyleSheet(f"QProgressBar::chunk {{ background: {PRIMARY_COLOR}; }} QProgressBar {{ border: none; background: transparent; }}")
+        # Dark progress bar styling
+        progress_style = (
+            f"QProgressBar::chunk {{ background: {PRIMARY_COLOR}; }} "
+            f"QProgressBar {{ border: none; background: transparent; }}"
+        )
+        self.progress.setStyleSheet(progress_style)
 
         # Main layout: top bar + progress bar + tab widget (with content)
         container = QtWidgets.QWidget()
@@ -224,9 +372,15 @@ class MainWindow(QtWidgets.QMainWindow):
         widget = self.tabs.widget(idx)
         if widget and hasattr(widget, "webview"):
             wv = widget.webview
-            self._progress_connections.append(wv.loadStarted.connect(self._on_load_started))
-            self._progress_connections.append(wv.loadProgress.connect(self.progress.setValue))
-            self._progress_connections.append(wv.loadFinished.connect(self._on_load_finished))
+            self._progress_connections.append(
+                wv.loadStarted.connect(self._on_load_started)
+            )
+            self._progress_connections.append(
+                wv.loadProgress.connect(self.progress.setValue)
+            )
+            self._progress_connections.append(
+                wv.loadFinished.connect(self._on_load_finished)
+            )
 
     def _on_load_started(self):
         self.progress.setVisible(True)
@@ -250,8 +404,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 url = "http://" + url
             self.tabs.addTab(BrowserTab(url), name or url)
             # Save to recent
-            if name and url and not any(r['url'] == url for r in self.recent):
-                self.config["recent"].insert(0, {'name': name, 'url': url})
+            if name and url and not any(r["url"] == url for r in self.recent):
+                self.config["recent"].insert(0, {"name": name, "url": url})
                 self.config["recent"] = self.config["recent"][:10]
                 save_config(self.config)
 
@@ -263,15 +417,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_recent(self) -> None:
         """Open a recent address in a new tab."""
         items = [f"{r['name']} ({r['url']})" for r in self.config.get("recent", [])]
-        item, ok = QtWidgets.QInputDialog.getItem(self, "Open Recent", "Select:", items, 0, False)
+        item, ok = QtWidgets.QInputDialog.getItem(
+            self, "Open Recent", "Select:", items, 0, False
+        )
         if ok and item:
             idx = items.index(item)
             r = self.recent[idx]
-            self.tabs.addTab(BrowserTab(r['url']), r['name'])
+            self.tabs.addTab(BrowserTab(r["url"]), r["name"])
 
     def resource_path(self, rel: str) -> str:
         """Get resource path for icon, compatible with PyInstaller."""
-        if hasattr(sys, '_MEIPASS'):
+        if hasattr(sys, "_MEIPASS"):
             return os.path.join(sys._MEIPASS, rel)
         return os.path.join(os.path.abspath(os.path.dirname(__file__)), rel)
 
