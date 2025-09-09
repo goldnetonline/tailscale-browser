@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tailscale-browser"
+version = "0.1.0"
+description = "A tabbed browser for Tailscale addresses with recent history."
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.13"
+pyqt5 = "*"
+pyqtwebengine = "*"
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+flake8 = "*"
+pylint = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
