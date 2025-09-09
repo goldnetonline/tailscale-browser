@@ -157,7 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.showMaximized()
         self.setStyleSheet(f"""
             QMainWindow {{ background: #f5f3ff; }}
-            QTabWidget::pane {{ border: 2px solid {PRIMARY_COLOR}; }}
+            QTabWidget::pane {{ border: none; }}
             QTabBar::tab:selected {{ background: {PRIMARY_COLOR}; color: white; }}
             QTabBar::tab:!selected {{ background: #ede9fe; color: #22223b; }}
             QPushButton {{ background: {PRIMARY_COLOR}; color: white; border-radius: 6px; padding: 6px; }}
