@@ -1,11 +1,30 @@
 [tool.poetry]
 name = "tailscale-browser"
 version = "0.1.0"
-description = "A tabbed browser for Tailscale addresses with recent history."
+description = "A tabbed browser for Tailscale addresses with recent history and dark mode support."
 authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+homepage = "https://github.com/goldnetonline/tailscale-browser"
+repository = "https://github.com/goldnetonline/tailscale-browser"
+keywords = ["tailscale", "browser", "pyqt", "webkit", "tabs"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: Browsers",
+    "Topic :: System :: Networking"
+]
+packages = [{include = "tailscale_browser.py"}]
+
+[tool.poetry.scripts]
+tailscale-browser = "tailscale_browser:main"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = ">=3.13,<3.15"
 pyqt5 = "*"
 pyqtwebengine = "*"
 
@@ -14,6 +33,8 @@ black = "*"
 flake8 = "*"
 pylint = "*"
 pre-commit = "^4.3.0"
+pyinstaller = "^6.15.0"
+pillow = "^11.3.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,93 +1,183 @@
 # Tailscale Browser
 
-Tailscale Browser is an open source, cross-platform, tabbed browser for quickly accessing URLs or IPs (such as Tailscale nodes) with a beautiful purple-themed UI. It stores recent addresses and other settings in a config file in your home directory.
+A modern, tabbed browser application designed for accessing Tailscale networks and local services with SSL bypass support. Features a sleek Chrome-like dark mode interface and convenient recent address management.
 
-## License
+## ✨ Features
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+-   **🗂️ Tabbed Interface**: Add/remove tabs with ease
+-   **🌙 Dark Mode**: Chrome-inspired dark theme throughout
+-   **🔒 SSL Bypass**: Access PiKVM and other self-signed certificate services
+-   **📝 Recent Addresses**: Smart history management with quick access
+-   **⚡ Modern WebEngine**: Powered by Qt WebEngine for full web compatibility
+-   **🎨 Purple Accent**: Beautiful purple-themed UI elements
+-   **💾 Persistent Config**: Settings stored in `~/.tailscale_browser`
 
-# Tailscale Browser - Documentation
+## 🚀 Quick Start
 
-## Features
+### Using Pre-built Releases
 
--   Tabbed browser interface (add/remove tabs)
--   Each tab loads a URL/IP in a modern browser view (Qt WebEngine)
--   Add tab dialog lets you pick from recent addresses or enter a new one (with name and URL/IP)
--   Recent addresses are stored in a config file in your home directory
--   Purple color theme and a sample launcher icon (`icon.png`)
--   The browser view takes up maximum space
+1. Download the latest release from [GitHub Releases](https://github.com/goldnetonline/tailscale-browser/releases)
+2. **macOS**: Open `Tailscale Browser.app`
+3. **Linux/Windows**: Run the executable
 
-## Requirements
+### From Source
 
--   Python 3.10+
--   PyQt5, PyQtWebEngine
--   (Optional) Poetry for dependency management
--   (Optional) PyInstaller for bundling
+```bash
+# Clone the repository
+git clone https://github.com/goldnetonline/tailscale-browser.git
+cd tailscale-browser
 
-## Setup
-
-### 1. Python Environment
-
--   Install [pyenv](https://github.com/pyenv/pyenv) and run:
-    ```sh
-    pyenv install 3.10.13
-    pyenv local 3.10.13
-    ```
-
-### 2. Install Dependencies
-
-```sh
+# Install dependencies
 poetry install
+
+# Run the application
+make run
 ```
 
-### 3. Pre-commit Hooks
+## 📦 Installation Methods
 
--   Install pre-commit:
-    ```sh
-    pip install pre-commit
-    pre-commit install
-    ```
+### Option 1: Python Package
 
-### 4. Run the App
-
-```sh
-python tailscale_browser.py
+```bash
+pip install tailscale-browser
+tailscale-browser
 ```
 
-Or with Poetry:
+### Option 2: From Source
 
-```sh
+```bash
+poetry install
 poetry run python tailscale_browser.py
 ```
 
-## Linting & Formatting
+### Option 3: Standalone Executable
 
--   Run `make lint` to check code style (flake8, pylint)
--   Run `make format` to auto-format with black
+Download from releases or build yourself (see Building section).
 
-## Bundling for Any OS
+## 🛠️ Development
 
--   Install PyInstaller:
-    ```sh
-    poetry add --dev pyinstaller
-    ```
--   Build a standalone executable:
-    ```sh
-    make build
-    ```
-    The output will be in the `dist/` folder.
--   For Windows/macOS/Linux, run the above on the target OS or use a cross-compilation tool/docker.
+### Requirements
 
-## Cleaning Up
+-   Python 3.13+
+-   Poetry (recommended) or pip
+-   PyQt5 & PyQtWebEngine
 
--   Run `make clean` to remove build artifacts.
+### Setup Development Environment
 
-## Notes
+```bash
+# Install Poetry if you haven't already
+curl -sSL https://install.python-poetry.org | python3 -
 
--   Recent addresses are stored in `~/.tailscale_browser_recent.json`.
--   You can change the launcher icon by replacing `icon.png`.
--   For advanced packaging (e.g., .dmg, .msi, .deb), see PyInstaller and platform-specific docs.
+# Clone and setup
+git clone https://github.com/goldnetonline/tailscale-browser.git
+cd tailscale-browser
+poetry install
+
+# Install pre-commit hooks
+poetry run pre-commit install
+
+# Run the application
+make run
+```
+
+### Development Commands
+
+```bash
+make help          # Show all available commands
+make run           # Run the application
+make format        # Format code with black
+make lint          # Run linting checks
+make test          # Run tests (when available)
+```
+
+## 📦 Building & Packaging
+
+### One-Command Build (All Packages)
+
+```bash
+# Build everything at once - creates all distribution packages
+make package
+```
+
+### Development Commands
+
+```bash
+# Quick executable build only
+make build
+
+# Clean all build artifacts
+make clean
+```
+
+### Cross-Platform Building
+
+-   **macOS**: Run `make package` to create `.app` bundle
+-   **Linux**: Run `make build` to create executable
+-   **Windows**: Run `make build` on Windows system
+
+## 🎯 Usage
+
+1. **Launch the app** using any of the installation methods above
+2. **Add a new tab** by clicking the "+ New Tab" button
+3. **Enter URL or IP** in the dialog (e.g., `192.168.1.100`, `tailscale-device.local`)
+4. **Give it a name** for easy identification
+5. **Browse securely** - SSL certificate errors are automatically bypassed
+
+### Perfect for:
+
+-   🖥️ **PiKVM Access**: Web-based KVM over IP
+-   🏠 **Home Lab Services**: Router interfaces, NAS systems, IoT devices
+-   🔗 **Tailscale Nodes**: Quick access to your mesh network devices
+-   🌐 **Local Development**: Test servers and development environments
+
+## ⚙️ Configuration
+
+Configuration is automatically stored in `~/.tailscale_browser`:
+
+```json
+{
+    "recent": [
+        {
+            "name": "Pi-KVM",
+            "url": "https://192.168.1.100"
+        }
+    ]
+}
+```
+
+## 🧹 Maintenance
+
+```bash
+# Clean build artifacts
+make clean
+
+# Update dependencies
+poetry update
+
+# Run pre-commit on all files
+poetry run pre-commit run --all-files
+```
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting (`make format lint`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 🐛 Issues & Support
+
+-   🐛 [Report Bugs](https://github.com/goldnetonline/tailscale-browser/issues)
+-   💡 [Request Features](https://github.com/goldnetonline/tailscale-browser/issues)
+-   📖 [Documentation](https://github.com/goldnetonline/tailscale-browser/wiki)
 
 ---
 
-Enjoy using Tailscale Browser!
+**Enjoy browsing your Tailscale network! 🎉**
