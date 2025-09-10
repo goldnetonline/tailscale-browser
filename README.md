@@ -1,37 +1,41 @@
-# Tailscale Browser
+# TailScale Browser
 
-A modern, tabbed browser application designed for accessing Tailscale networks and local services with SSL bypass support. Features a sleek Chrome-like dark mode interface and convenient recent address management.
+A minimal, tabbed browser application built with Python and PyQt5, designed for accessing TailScale admin interfaces with SSL certificate bypass capabilities.
 
-## ✨ Features
+## Features
 
--   **🗂️ Tabbed Interface**: Add/remove tabs with ease
--   **🌙 Dark Mode**: Chrome-inspired dark theme throughout
--   **🔒 SSL Bypass**: Access PiKVM and other self-signed certificate services
--   **📝 Recent Addresses**: Smart history management with quick access
--   **⚡ Modern WebEngine**: Powered by Qt WebEngine for full web compatibility
--   **🎨 Purple Accent**: Beautiful purple-themed UI elements
--   **💾 Persistent Config**: Settings stored in `~/.tailscale_browser`
+-   🌐 **Tabbed Browsing**: Multiple tabs with easy navigation
+-   🎨 **Dark Mode Interface**: Chrome-like dark theme for comfortable viewing
+-   🔒 **SSL Bypass**: Automatically accepts self-signed certificates for development environments
+-   ➕ **Quick Tab Management**: New tab button and close buttons on each tab
+-   🚀 **Lightweight**: Optimized build (101MB) with 63% size reduction
+-   🖥️ **Cross-Platform**: Builds for macOS and Windows
 
-## 🚀 Quick Start
+## Quick Start
 
-### Using Pre-built Releases
-
-1. Download the latest release from [GitHub Releases](https://github.com/goldnetonline/tailscale-browser/releases)
-2. **macOS**: Open `Tailscale Browser.app`
-3. **Linux/Windows**: Run the executable
-
-### From Source
+### Cross-Platform Builds
 
 ```bash
-# Clone the repository
-git clone https://github.com/goldnetonline/tailscale-browser.git
-cd tailscale-browser
+# macOS (native)
+make build
+make optimize  # 63% smaller
 
+# Windows (requires Windows environment)
+make build-windows
+make optimize-windows
+```
+
+### Manual Installation
+
+```bash
 # Install dependencies
 poetry install
 
-# Run the application
-make run
+# Run directly
+poetry run python tailscale_browser.py
+
+# Build with optimization
+make optimize
 ```
 
 ## 📦 Installation Methods

@@ -153,12 +153,29 @@ class AddTabDialog(QtWidgets.QDialog):
 
 class BrowserTab(QtWidgets.QWidget):
     """
-    A single browser tab containing a QWebEngineView with dark mode support.
+    A single browser tab containing a QWebEngineView with dark mode support and per-tab progress bar.
     """
 
     def __init__(self, url: str, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        # Add per-tab progress bar at the top
+        self.progress = QtWidgets.QProgressBar()
+        self.progress.setMaximumHeight(3)
+        self.progress.setTextVisible(False)
+        self.progress.setValue(0)
+        self.progress.setVisible(False)
+        # Dark progress bar styling
+        progress_style = (
+            f"QProgressBar::chunk {{ background: {PRIMARY_COLOR}; }} "
+            f"QProgressBar {{ border: none; background: transparent; }}"
+        )
+        self.progress.setStyleSheet(progress_style)
+        layout.addWidget(self.progress)
+
         self.webview = QtWebEngineWidgets.QWebEngineView()
 
         # Use the insecure page to allow self-signed/invalid certs
@@ -166,6 +183,11 @@ class BrowserTab(QtWidgets.QWidget):
 
         # Set dark background for the webview itself
         self.webview.setStyleSheet(f"background-color: {DARK_BG};")
+
+        # Connect progress signals to this tab's progress bar
+        self.webview.loadStarted.connect(self._on_load_started)
+        self.webview.loadProgress.connect(self.progress.setValue)
+        self.webview.loadFinished.connect(self._on_load_finished)
 
         # Set a default home page if url is empty
         if not url or url.strip() == "":
@@ -178,7 +200,15 @@ class BrowserTab(QtWidgets.QWidget):
             self.webview.setUrl(QtCore.QUrl(url))
 
         layout.addWidget(self.webview)
-        layout.setContentsMargins(0, 0, 0, 0)
+
+    def _on_load_started(self):
+        """Show progress bar when loading starts."""
+        self.progress.setVisible(True)
+        self.progress.setValue(0)
+
+    def _on_load_finished(self, ok):
+        """Hide progress bar when loading finishes."""
+        self.progress.setVisible(False)
 
     def _set_dark_blank_page(self):
         """Set a dark-themed blank page."""
@@ -330,64 +360,16 @@ class MainWindow(QtWidgets.QMainWindow):
         open_recent_btn.clicked.connect(self.open_recent)
         top_layout.addWidget(open_recent_btn, 0)
 
-        # Add a thin progress bar just below the tab bar
-        self.progress = QtWidgets.QProgressBar()
-        self.progress.setMaximumHeight(3)
-        self.progress.setTextVisible(False)
-        self.progress.setValue(0)
-        self.progress.setVisible(False)
-        # Dark progress bar styling
-        progress_style = (
-            f"QProgressBar::chunk {{ background: {PRIMARY_COLOR}; }} "
-            f"QProgressBar {{ border: none; background: transparent; }}"
-        )
-        self.progress.setStyleSheet(progress_style)
-
-        # Main layout: top bar + progress bar + tab widget (with content)
+        # Main layout: top bar + tab widget (with content)
         container = QtWidgets.QWidget()
         container_layout = QtWidgets.QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(0)
         container_layout.addWidget(top_bar)
-        container_layout.addWidget(self.progress)
         container_layout.addWidget(self.tabs)
         self.setCentralWidget(container)
 
-        self.tabs.currentChanged.connect(self._connect_progress_to_current_tab)
         self.add_tab()  # Start with one tab
-
-    def _connect_progress_to_current_tab(self, idx):
-        # Disconnect previous signals
-        try:
-            self._progress_connections
-        except AttributeError:
-            self._progress_connections = []
-        for conn in self._progress_connections:
-            try:
-                conn.disconnect()
-            except Exception:
-                pass
-        self._progress_connections = []
-        # Connect to the new tab's webview
-        widget = self.tabs.widget(idx)
-        if widget and hasattr(widget, "webview"):
-            wv = widget.webview
-            self._progress_connections.append(
-                wv.loadStarted.connect(self._on_load_started)
-            )
-            self._progress_connections.append(
-                wv.loadProgress.connect(self.progress.setValue)
-            )
-            self._progress_connections.append(
-                wv.loadFinished.connect(self._on_load_finished)
-            )
-
-    def _on_load_started(self):
-        self.progress.setVisible(True)
-        self.progress.setValue(0)
-
-    def _on_load_finished(self, ok):
-        self.progress.setVisible(False)
 
     @property
     def recent(self) -> List[Dict[str, str]]:
