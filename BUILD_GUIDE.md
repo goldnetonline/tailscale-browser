@@ -45,6 +45,35 @@ make package-windows
 -   Poetry for dependency management
 -   PyInstaller for executable creation
 
+### Linux / WSL2 (Ubuntu) Runtime Dependencies
+
+Qt WebEngine requires additional system libraries on Ubuntu/WSL2. Install:
+
+```bash
+sudo apt update
+sudo apt install -y \
+	libasound2t64 \
+	libxcb-xinerama0 libxcb-cursor0 libxcb-xkb1 libxkbcommon-x11-0 \
+	libxcb1 libx11-xcb1 libxrender1 libxi6 libxtst6 \
+	libxcb-keysyms1 libxcb-image0 libxcb-shm0 libxcb-icccm4 \
+	libxcb-sync1 libxcb-xfixes0 libxcb-shape0 libxcb-randr0 libxcb-render-util0
+```
+
+#### WSL2 GUI Notes
+
+-   **Windows 11 (WSLg)**: GUI apps should work without extra setup.
+-   **Windows 10 or no WSLg**: Use an X server (VcXsrv/X410) and set `DISPLAY`:
+
+```bash
+export DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2}'):0
+```
+
+If you hit OpenGL/GLX errors in WSL2, force software rendering:
+
+```bash
+LIBGL_ALWAYS_SOFTWARE=1 QT_OPENGL=software poetry run python tailscale_browser.py
+```
+
 ### macOS Build Process
 
 1. **Regular Build**: Creates a standard .app bundle (~275MB)

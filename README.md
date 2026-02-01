@@ -66,6 +66,35 @@ Download from releases or build yourself (see Building section).
 -   Poetry (recommended) or pip
 -   PyQt5 & PyQtWebEngine
 
+### Linux / WSL2 (Ubuntu) System Dependencies
+
+If you're running on Linux or WSL2 (Ubuntu), install the Qt and audio runtime libs:
+
+```bash
+sudo apt update
+sudo apt install -y \
+    libasound2t64 \
+    libxcb-xinerama0 libxcb-cursor0 libxcb-xkb1 libxkbcommon-x11-0 \
+    libxcb1 libx11-xcb1 libxrender1 libxi6 libxtst6 \
+    libxcb-keysyms1 libxcb-image0 libxcb-shm0 libxcb-icccm4 \
+    libxcb-sync1 libxcb-xfixes0 libxcb-shape0 libxcb-randr0 libxcb-render-util0
+```
+
+#### WSL2 GUI Notes
+
+-   **Windows 11 (WSLg)**: GUI apps should work out of the box.
+-   **Windows 10 or no WSLg**: Run an X server on Windows (VcXsrv/X410) and set `DISPLAY` in WSL:
+
+```bash
+export DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2}'):0
+```
+
+If you see OpenGL/GLX errors on WSL2, try software rendering:
+
+```bash
+LIBGL_ALWAYS_SOFTWARE=1 QT_OPENGL=software poetry run python tailscale_browser.py
+```
+
 ### Setup Development Environment
 
 ```bash
