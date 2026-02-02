@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 import sys
 from typing import Dict, List, Optional, Tuple
 
@@ -12,9 +13,6 @@ chromium_flags = [
     "--disable-web-security",
 ]
 os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = " ".join(chromium_flags)
-
-# Ensure consistent tab rendering across platforms
-os.environ["QT_STYLE_OVERRIDE"] = "Fusion"
 
 APP_NAME = "Tailscale Browser"
 CONFIG_FILE = os.path.join(os.path.expanduser("~"), ".tailscale_browser")
@@ -388,10 +386,35 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(1200, 800)
         self.showMaximized()
 
-        # Fusion style for consistent tabs across platforms
+        # Use native platform style when available (Windows/macOS), fallback to Fusion
         app = QtWidgets.QApplication.instance()
         if app:
-            app.setStyle("Fusion")
+            # Detect platform and use appropriate style
+            available_styles = QtWidgets.QStyleFactory.keys()
+            system = platform.system()
+
+            # Log available styles and current platform for debugging
+            print(f"Platform: {system}")
+            print(f"Available Qt styles: {available_styles}")
+
+            if system == "Windows":
+                # Try Windows 11, then Windows, then Fusion
+                for style in ["Windows11", "windowsvista", "Windows", "Fusion"]:
+                    if style in available_styles:
+                        print(f"Setting style to: {style}")
+                        app.setStyle(style)
+                        break
+            elif system == "Darwin":
+                # Try macOS styles
+                for style in ["macOS", "Macintosh", "Fusion"]:
+                    if style in available_styles:
+                        print(f"Setting style to: {style}")
+                        app.setStyle(style)
+                        break
+            else:
+                # Linux/other - use Fusion
+                print(f"Setting style to: Fusion (Linux/other)")
+                app.setStyle("Fusion")
 
         # Apply stylesheet
         self.apply_stylesheet()
