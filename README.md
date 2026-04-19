@@ -18,11 +18,9 @@ A minimal, tabbed browser application built with Python and PyQt5, designed for 
 ```bash
 # macOS (native)
 make build
-make optimize  # 63% smaller
 
 # Windows (requires Windows environment)
 make build-windows
-make optimize-windows
 ```
 
 ### Manual Installation
@@ -32,10 +30,10 @@ make optimize-windows
 poetry install
 
 # Run directly
-poetry run python tailscale_browser.py
+poetry run tailscale-browser
 
-# Build with optimization
-make optimize
+# Build standalone binary
+make build
 ```
 
 ## 📦 Installation Methods
@@ -51,7 +49,7 @@ tailscale-browser
 
 ```bash
 poetry install
-poetry run python tailscale_browser.py
+poetry run tailscale-browser
 ```
 
 ### Option 3: Standalone Executable
@@ -92,7 +90,7 @@ export DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2}'):0
 If you see OpenGL/GLX errors on WSL2, try software rendering:
 
 ```bash
-LIBGL_ALWAYS_SOFTWARE=1 QT_OPENGL=software poetry run python tailscale_browser.py
+LIBGL_ALWAYS_SOFTWARE=1 QT_OPENGL=software poetry run tailscale-browser
 ```
 
 ### Setup Development Environment

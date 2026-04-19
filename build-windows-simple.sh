@@ -16,7 +16,7 @@ cat > TailscaleBrowser-windows.spec << 'EOF'
 block_cipher = None
 
 a = Analysis(
-    ['tailscale_browser.py'],
+    ['src/tailscale_browser/main.py'],
     pathex=[],
     binaries=[],
     datas=[],

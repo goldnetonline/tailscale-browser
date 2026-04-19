@@ -50,7 +50,7 @@ wine "$WINEPREFIX/drive_c/Python311/python.exe" -m pip install --upgrade pip pyi
 # Copy project files to Wine drive
 WINE_PROJECT_DIR="$WINEPREFIX/drive_c/tailscale-browser"
 mkdir -p "$WINE_PROJECT_DIR"
-cp tailscale_browser.py "$WINE_PROJECT_DIR/"
+cp -r src resources pyproject.toml poetry.lock "$WINE_PROJECT_DIR/" 2>/dev/null || cp -r src resources "$WINE_PROJECT_DIR/"
 
 # Build Windows executable
 echo "🔨 Building Windows executable..."
@@ -60,12 +60,15 @@ wine "$WINEPREFIX/drive_c/Python311/Scripts/pyinstaller.exe" \
     --onefile \
     --windowed \
     --name "TailscaleBrowser" \
+    --paths src \
+    --add-data "resources;resources" \
+    --hidden-import PyQt5.QtWebEngineWidgets \
     --exclude-module tkinter \
     --exclude-module matplotlib \
     --exclude-module numpy \
     --exclude-module pandas \
     --exclude-module scipy \
-    tailscale_browser.py
+    src/tailscale_browser/main.py
 
 # Copy back to project directory
 if [ -f "$WINE_PROJECT_DIR/dist/TailscaleBrowser.exe" ]; then

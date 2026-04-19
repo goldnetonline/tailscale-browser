@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 homepage = "https://github.com/goldnetonline/tailscale-browser"
 repository = "https://github.com/goldnetonline/tailscale-browser"
-keywords = ["tailscale", "browser", "pyqt", "webkit", "tabs"]
+keywords = ["tailscale", "browser", "pyqt", "webengine", "tabs"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: System Administrators",
@@ -18,10 +18,10 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Browsers",
     "Topic :: System :: Networking"
 ]
-packages = [{include = "tailscale_browser.py"}]
+packages = [{ include = "tailscale_browser", from = "src" }]
 
 [tool.poetry.scripts]
-tailscale-browser = "tailscale_browser:main"
+tailscale-browser = "tailscale_browser.main:main"
 
 [tool.poetry.dependencies]
 python = ">=3.13,<3.15"

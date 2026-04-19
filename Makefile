@@ -1,7 +1,22 @@
 
 # Makefile for Tailscale Browser
 
-.PHONY: help install lint format test build build-windows package package-windows clean run optimize optimize-test
+PY_SRC := src/tailscale_browser
+ENTRY := src/tailscale_browser/main.py
+PYI_COMMON := --paths src \
+		--add-data "resources:resources" \
+		--hidden-import PyQt5.QtWebEngineWidgets \
+		--exclude-module tkinter \
+		--exclude-module matplotlib \
+		--exclude-module numpy \
+		--exclude-module pandas \
+		--exclude-module scipy \
+		--exclude-module PIL.ImageTk \
+		--exclude-module PIL.ImageQt \
+		--strip \
+		--optimize=2
+
+.PHONY: help install lint format test build build-windows package package-windows clean run icons
 
 help:
 	@echo "Tailscale Browser Makefile"
@@ -10,6 +25,7 @@ help:
 	@echo "  lint            Run flake8 and pylint checks"
 	@echo "  format          Auto-format code with black"
 	@echo "  test            Run tests (none yet)"
+	@echo "  icons           Generate icon.png / icon.icns for packaging"
 	@echo "  build           Build standalone executable (macOS, optimized)"
 	@echo "  build-windows   Build standalone executable (Windows)"
 	@echo "  package         Build ALL distribution packages (macOS)"
@@ -18,42 +34,40 @@ help:
 	@echo "  clean           Remove build artifacts"
 
 run:
-	poetry run python tailscale_browser.py
+	poetry run python -m tailscale_browser
 
 install:
 	poetry install
 
 lint:
-	poetry run flake8 tailscale_browser.py
-	poetry run pylint tailscale_browser.py
+	poetry run flake8 $(PY_SRC)
+	poetry run pylint -E \
+		--extension-pkg-allow-list=PyQt5 \
+		$(PY_SRC)
 
 format:
-	poetry run black tailscale_browser.py
+	poetry run black $(PY_SRC) scripts
+
+icons:
+	poetry run python scripts/make_icon_assets.py
 
 test:
 	@echo "No tests yet."
 
-build:
+build-macos:
 	@echo "🔨 Building optimized standalone executable (macOS)..."
-	@if [ ! -f icon.icns ]; then \
-		poetry run python -c "from PIL import Image; img = Image.open('icon.png'); img.save('icon.icns', format='ICNS')"; \
-	fi
+	@if [ ! -f icon.icns ]; then $(MAKE) icons; fi
 	poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" --icon=icon.icns \
-		--exclude-module tkinter \
-		--exclude-module matplotlib \
-		--exclude-module numpy \
-		--exclude-module pandas \
-		--exclude-module scipy \
-		--exclude-module PIL.ImageTk \
-		--exclude-module PIL.ImageQt \
-		--strip \
-		--optimize=2 \
-		tailscale_browser.py
+		$(PYI_COMMON) \
+		$(ENTRY)
 
 build-windows:
 	@echo "🔨 Building standalone executable (Windows)..."
 	@echo "Note: Run this on a Windows machine with Python and Poetry installed"
 	poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser.exe" \
+		--paths src \
+		--add-data "resources;resources" \
+		--hidden-import PyQt5.QtWebEngineWidgets \
 		--exclude-module tkinter \
 		--exclude-module matplotlib \
 		--exclude-module numpy \
@@ -63,35 +77,20 @@ build-windows:
 		--exclude-module PIL.ImageQt \
 		--strip \
 		--optimize=2 \
-		tailscale_browser.py
+		$(ENTRY)
 
-package:
+package-macos:
 	@echo "📦 Building ALL distribution packages (macOS, optimized)..."
 	@echo "🧹 Cleaning previous builds..."
 	rm -rf build dist release *.spec
-	@echo "🎨 Creating ICNS icon..."
-	@if [ ! -f icon.icns ]; then \
-		poetry run python -c "from PIL import Image; img = Image.open('icon.png'); img.save('icon.icns', format='ICNS')"; \
-		echo "✅ Created icon.icns from icon.png"; \
-	else \
-		echo "✅ icon.icns already exists"; \
-	fi
+	@if [ ! -f icon.icns ]; then $(MAKE) icons; fi
 	@echo "🐍 Building Python wheel..."
 	poetry build
 	@echo "🔨 Building optimized executable with app bundle..."
 	poetry run pyinstaller --onedir --windowed --name "TailscaleBrowser" --icon=icon.icns \
-		--add-data "icon.png:." \
+		$(PYI_COMMON) \
 		--osx-bundle-identifier "com.goldnetonline.tailscale-browser" \
-		--exclude-module tkinter \
-		--exclude-module matplotlib \
-		--exclude-module numpy \
-		--exclude-module pandas \
-		--exclude-module scipy \
-		--exclude-module PIL.ImageTk \
-		--exclude-module PIL.ImageQt \
-		--strip \
-		--optimize=2 \
-		tailscale_browser.py
+		$(ENTRY)
 	@echo "📱 Creating release files..."
 	mkdir -p release
 	cp "dist/tailscale_browser-"*"-py3-none-any.whl" "release/" 2>/dev/null || true
@@ -136,6 +135,9 @@ package-windows:
 	poetry build
 	@echo "🔨 Building optimized Windows executable..."
 	poetry run pyinstaller --onedir --windowed --name "TailscaleBrowser" \
+		--paths src \
+		--add-data "resources;resources" \
+		--hidden-import PyQt5.QtWebEngineWidgets \
 		--exclude-module tkinter \
 		--exclude-module matplotlib \
 		--exclude-module numpy \
@@ -145,7 +147,7 @@ package-windows:
 		--exclude-module PIL.ImageQt \
 		--strip \
 		--optimize=2 \
-		tailscale_browser.py
+		$(ENTRY)
 	@echo "📱 Creating release files..."
 	mkdir -p release
 	cp "dist/tailscale_browser-"*"-py3-none-any.whl" "release/" 2>/dev/null || true
@@ -163,3 +165,4 @@ package-windows:
 
 clean:
 	rm -rf __pycache__ build dist release *.spec
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true

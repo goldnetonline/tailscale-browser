@@ -19,6 +19,9 @@ python -m poetry install
 # Build the executable
 Write-Host "Building Windows executable..." -ForegroundColor Yellow
 python -m poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" `
+    --paths src `
+    --add-data "resources;resources" `
+    --hidden-import PyQt5.QtWebEngineWidgets `
     --exclude-module tkinter `
     --exclude-module matplotlib `
     --exclude-module numpy `
@@ -26,7 +29,7 @@ python -m poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" 
     --exclude-module scipy `
     --strip `
     --optimize=2 `
-    tailscale_browser.py
+    src/tailscale_browser/main.py
 
 # Check if build was successful
 if (Test-Path ".\dist\TailscaleBrowser.exe") {
