@@ -10,7 +10,7 @@ echo "🔨 Building Windows executable from WSL2..."
 poetry run pip install pyinstaller
 
 # Create a spec file for Windows
-cat > TailscaleBrowser-windows.spec << 'EOF'
+cat > Tailscale-Browser-windows.spec << 'EOF'
 # -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
@@ -40,7 +40,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='TailscaleBrowser',
+    name='Tailscale Browser',
     debug=False,
     bootloader_ignore_signals=False,
     strip=True,
@@ -69,4 +69,4 @@ echo ""
 echo "Option 3: Use GitHub Actions / CI to build Windows version"
 echo "  - Push to GitHub and set up Windows CI pipeline"
 echo ""
-echo "📝 Spec file created: TailscaleBrowser-windows.spec"
+echo "📝 Spec file created: Tailscale-Browser-windows.spec"

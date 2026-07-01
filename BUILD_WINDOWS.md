@@ -21,7 +21,7 @@ poetry install
 
 ### Step 3: Build Windows Executable
 ```powershell
-poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" `
+poetry run pyinstaller --onefile --windowed --name "Tailscale Browser" `
     --exclude-module tkinter `
     --exclude-module matplotlib `
     --exclude-module numpy `
@@ -35,7 +35,7 @@ poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" `
 ### Step 4: Find Your Executable
 The built executable will be located at:
 ```
-dist\TailscaleBrowser.exe
+dist\Tailscale Browser.exe
 ```
 
 ## Alternative: Use the Makefile (if Make is available)
@@ -48,9 +48,9 @@ make build-windows
 
 ## Installation
 
-1. Copy `dist\TailscaleBrowser.exe` to any location (e.g., `C:\Program Files\TailscaleBrowser\`)
+1. Copy `dist\Tailscale Browser.exe` to any location (e.g., `C:\Program Files\Tailscale Browser\`)
 2. Create a desktop shortcut if desired
-3. Run `TailscaleBrowser.exe`
+3. Run `Tailscale Browser.exe`
 
 ## Notes
 
@@ -77,7 +77,7 @@ If you have an icon file:
 1. Place `icon.ico` in the project root
 2. Add `--icon=icon.ico` to the pyinstaller command:
    ```powershell
-   poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" `
+   poetry run pyinstaller --onefile --windowed --name "Tailscale Browser" `
        --icon=icon.ico `
        --exclude-module tkinter `
        --exclude-module matplotlib `

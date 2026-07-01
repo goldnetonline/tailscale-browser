@@ -54,17 +54,21 @@ icons:
 test:
 	@echo "No tests yet."
 
+build: build-macos
+
+package: package-macos
+
 build-macos:
 	@echo "🔨 Building optimized standalone executable (macOS)..."
 	@if [ ! -f icon.icns ]; then $(MAKE) icons; fi
-	poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" --icon=icon.icns \
+	poetry run pyinstaller --onefile --windowed --name "Tailscale Browser" --icon=icon.icns \
 		$(PYI_COMMON) \
 		$(ENTRY)
 
 build-windows:
 	@echo "🔨 Building standalone executable (Windows)..."
 	@echo "Note: Run this on a Windows machine with Python and Poetry installed"
-	poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser.exe" \
+	poetry run pyinstaller --onefile --windowed --name "Tailscale Browser" \
 		--paths src \
 		--add-data "resources;resources" \
 		--hidden-import PyQt5.QtWebEngineWidgets \
@@ -87,7 +91,7 @@ package-macos:
 	@echo "🐍 Building Python wheel..."
 	poetry build
 	@echo "🔨 Building optimized executable with app bundle..."
-	poetry run pyinstaller --onedir --windowed --name "TailscaleBrowser" --icon=icon.icns \
+	poetry run pyinstaller --onedir --windowed --name "Tailscale Browser" --icon=icon.icns \
 		$(PYI_COMMON) \
 		--osx-bundle-identifier "com.goldnetonline.tailscale-browser" \
 		$(ENTRY)
@@ -95,14 +99,14 @@ package-macos:
 	mkdir -p release
 	cp "dist/tailscale_browser-"*"-py3-none-any.whl" "release/" 2>/dev/null || true
 	cp "dist/tailscale_browser-"*".tar.gz" "release/" 2>/dev/null || true
-	if [ -d "dist/TailscaleBrowser.app" ]; then \
-		cp -R "dist/TailscaleBrowser.app" "release/Tailscale Browser.app"; \
-		cd dist && zip -r "../release/Tailscale-Browser-macOS.app.zip" "TailscaleBrowser.app"; cd ..; \
-	elif [ -d "dist/TailscaleBrowser" ]; then \
+	if [ -d "dist/Tailscale Browser.app" ]; then \
+		cp -R "dist/Tailscale Browser.app" "release/Tailscale Browser.app"; \
+		cd dist && zip -r "../release/Tailscale-Browser-macOS.app.zip" "Tailscale Browser.app"; cd ..; \
+	elif [ -d "dist/Tailscale Browser" ]; then \
 		mkdir -p "release/Tailscale Browser.app/Contents/MacOS"; \
 		mkdir -p "release/Tailscale Browser.app/Contents/Resources"; \
-		cp "dist/TailscaleBrowser/TailscaleBrowser" "release/Tailscale Browser.app/Contents/MacOS/"; \
-		cp -R "dist/TailscaleBrowser/_internal" "release/Tailscale Browser.app/Contents/"; \
+		cp "dist/Tailscale Browser/Tailscale Browser" "release/Tailscale Browser.app/Contents/MacOS/"; \
+		cp -R "dist/Tailscale Browser/_internal" "release/Tailscale Browser.app/Contents/"; \
 		cp icon.png "release/Tailscale Browser.app/Contents/Resources/"; \
 		echo '<?xml version="1.0" encoding="UTF-8"?>' > "release/Tailscale Browser.app/Contents/Info.plist"; \
 		echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
@@ -110,14 +114,14 @@ package-macos:
 		echo '<key>CFBundleName</key><string>Tailscale Browser</string>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
 		echo '<key>CFBundleIdentifier</key><string>com.goldnetonline.tailscale-browser</string>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
 		echo '<key>CFBundleVersion</key><string>0.1.0</string>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
-		echo '<key>CFBundleExecutable</key><string>TailscaleBrowser</string>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
+		echo '<key>CFBundleExecutable</key><string>Tailscale Browser</string>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
 		echo '<key>CFBundleIconFile</key><string>icon.png</string>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
 		echo '</dict></plist>' >> "release/Tailscale Browser.app/Contents/Info.plist"; \
-		cd dist && zip -r "../release/Tailscale-Browser-macOS.app.zip" "TailscaleBrowser"; cd ..; \
+		cd dist && zip -r "../release/Tailscale-Browser-macOS.app.zip" "Tailscale Browser"; cd ..; \
 	fi
-	if [ -f "dist/TailscaleBrowser/TailscaleBrowser" ]; then \
-		cp "dist/TailscaleBrowser/TailscaleBrowser" "release/TailscaleBrowser-standalone"; \
-		chmod +x "release/TailscaleBrowser-standalone"; \
+	if [ -f "dist/Tailscale Browser/Tailscale Browser" ]; then \
+		cp "dist/Tailscale Browser/Tailscale Browser" "release/Tailscale-Browser-standalone"; \
+		chmod +x "release/Tailscale-Browser-standalone"; \
 	fi
 	@echo ""
 	@echo "✅ ALL packages built successfully!"
@@ -134,7 +138,7 @@ package-windows:
 	@echo "🐍 Building Python wheel..."
 	poetry build
 	@echo "🔨 Building optimized Windows executable..."
-	poetry run pyinstaller --onedir --windowed --name "TailscaleBrowser" \
+	poetry run pyinstaller --onedir --windowed --name "Tailscale Browser" \
 		--paths src \
 		--add-data "resources;resources" \
 		--hidden-import PyQt5.QtWebEngineWidgets \
@@ -152,9 +156,9 @@ package-windows:
 	mkdir -p release
 	cp "dist/tailscale_browser-"*"-py3-none-any.whl" "release/" 2>/dev/null || true
 	cp "dist/tailscale_browser-"*".tar.gz" "release/" 2>/dev/null || true
-	if [ -d "dist/TailscaleBrowser" ]; then \
-		cp -R "dist/TailscaleBrowser" "release/TailscaleBrowser-Windows"; \
-		cd dist && zip -r "../release/Tailscale-Browser-Windows.zip" "TailscaleBrowser"; cd ..; \
+	if [ -d "dist/Tailscale Browser" ]; then \
+		cp -R "dist/Tailscale Browser" "release/Tailscale Browser-Windows"; \
+		cd dist && zip -r "../release/Tailscale-Browser-Windows.zip" "Tailscale Browser"; cd ..; \
 	fi
 	@echo ""
 	@echo "✅ ALL packages built successfully!"

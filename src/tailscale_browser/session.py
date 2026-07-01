@@ -59,5 +59,10 @@ def tab_entry_new() -> Dict[str, str]:
     return {"kind": "new_tab"}
 
 
-def tab_entry_url(url: str, title: str = "") -> Dict[str, str]:
-    return {"kind": "url", "url": url, "title": title or ""}
+def tab_entry_url(
+    url: str, title: str = "", preferred_title: str = ""
+) -> Dict[str, str]:
+    entry = {"kind": "url", "url": url, "title": title or ""}
+    if preferred_title:
+        entry["preferred_title"] = preferred_title
+    return entry

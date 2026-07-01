@@ -18,7 +18,7 @@ python -m poetry install
 
 # Build the executable
 Write-Host "Building Windows executable..." -ForegroundColor Yellow
-python -m poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" `
+python -m poetry run pyinstaller --onefile --windowed --name "Tailscale Browser" `
     --paths src `
     --add-data "resources;resources" `
     --hidden-import PyQt5.QtWebEngineWidgets `
@@ -32,12 +32,12 @@ python -m poetry run pyinstaller --onefile --windowed --name "TailscaleBrowser" 
     src/tailscale_browser/main.py
 
 # Check if build was successful
-if (Test-Path ".\dist\TailscaleBrowser.exe") {
-    $size = (Get-Item ".\dist\TailscaleBrowser.exe").Length / 1MB
+if (Test-Path ".\dist\Tailscale Browser.exe") {
+    $size = (Get-Item ".\dist\Tailscale Browser.exe").Length / 1MB
     Write-Host "Build complete!" -ForegroundColor Green
-    Write-Host "Executable location: dist\TailscaleBrowser.exe" -ForegroundColor Cyan
+    Write-Host "Executable location: dist\Tailscale Browser.exe" -ForegroundColor Cyan
     Write-Host "Size: $([math]::Round($size, 2)) MB" -ForegroundColor Cyan
-    Write-Host "You can now run: .\dist\TailscaleBrowser.exe" -ForegroundColor Yellow
+    Write-Host "You can now run: .\dist\Tailscale Browser.exe" -ForegroundColor Yellow
 } else {
     Write-Host "Build failed. Check the output above for errors." -ForegroundColor Red
     exit 1

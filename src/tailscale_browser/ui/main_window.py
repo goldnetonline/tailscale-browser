@@ -44,6 +44,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._profile = QtWebEngineWidgets.QWebEngineProfile(WEBENGINE_PROFILE_NAME)
         self._profile.setPersistentStoragePath(storage["persistent"])
         self._profile.setCachePath(storage["cache"])
+        self._profile.setPersistentCookiesPolicy(
+            QtWebEngineWidgets.QWebEngineProfile.ForcePersistentCookies
+        )
 
         self._suppress_last_tab_close = False
 
@@ -159,7 +162,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     start_on_new_tab_page=False,
                     get_recent=self._get_recent_list,
                 )
-                preferred_name = self._saved_name_for_url(url)
+                preferred_name = entry.get(
+                    "preferred_title"
+                ) or self._saved_name_for_url(url)
                 if preferred_name:
                     tab.set_preferred_title(preferred_name)
                 title = self._short_title(
@@ -332,7 +337,11 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 u = tab.current_url()
                 entries.append(
-                    tab_entry_url(u, self.tab_strip.tabText(i).replace("…", ""))
+                    tab_entry_url(
+                        u,
+                        self.tab_strip.tabText(i).replace("…", ""),
+                        tab.preferred_title(),
+                    )
                 )
         geo = self.geometry()
         sess = {
@@ -495,12 +504,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 w.refresh_saved_sites()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        for i in range(self.tab_strip.count()):
-            t = self.tab_strip.widget(i)
-            if isinstance(t, BrowserTab):
-                t.cleanup()
         try:
             save_session(self._collect_session())
         except Exception:
             pass
+        for i in range(self.tab_strip.count()):
+            t = self.tab_strip.widget(i)
+            if isinstance(t, BrowserTab):
+                t.cleanup()
         event.accept()

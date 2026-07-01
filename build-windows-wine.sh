@@ -59,7 +59,7 @@ cd "$WINE_PROJECT_DIR"
 wine "$WINEPREFIX/drive_c/Python311/Scripts/pyinstaller.exe" \
     --onefile \
     --windowed \
-    --name "TailscaleBrowser" \
+    --name "Tailscale Browser" \
     --paths src \
     --add-data "resources;resources" \
     --hidden-import PyQt5.QtWebEngineWidgets \
@@ -71,14 +71,14 @@ wine "$WINEPREFIX/drive_c/Python311/Scripts/pyinstaller.exe" \
     src/tailscale_browser/main.py
 
 # Copy back to project directory
-if [ -f "$WINE_PROJECT_DIR/dist/TailscaleBrowser.exe" ]; then
+if [ -f "$WINE_PROJECT_DIR/dist/Tailscale Browser.exe" ]; then
     mkdir -p "$(pwd)/dist/windows"
-    cp "$WINE_PROJECT_DIR/dist/TailscaleBrowser.exe" "$(pwd)/dist/windows/"
+    cp "$WINE_PROJECT_DIR/dist/Tailscale Browser.exe" "$(pwd)/dist/windows/"
 
-    SIZE=$(ls -lh "$(pwd)/dist/windows/TailscaleBrowser.exe" | awk '{print $5}')
+    SIZE=$(ls -lh "$(pwd)/dist/windows/Tailscale Browser.exe" | awk '{print $5}')
     echo ""
     echo "✅ Build complete!"
-    echo "📍 Location: $(pwd)/dist/windows/TailscaleBrowser.exe"
+    echo "📍 Location: $(pwd)/dist/windows/Tailscale Browser.exe"
     echo "📏 Size: $SIZE"
 else
     echo "❌ Build failed - executable not found"
