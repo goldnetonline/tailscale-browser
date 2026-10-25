@@ -22,15 +22,20 @@ jobs:
       - name: Install Poetry
         run: pip install poetry
 
-      - name: Install project
-        run: poetry install --no-interaction --no-ansi
+      # poetry.lock pins PyQt5-Qt5 5.15.17, which has no Windows wheels.
+      # 5.15.2 is the only Qt build published for Windows and still satisfies PyQt5.
+      - name: Install Windows runtime and PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller==6.15.0
+          python -m pip install "PyQt5==5.15.11" "PyQtWebEngine==5.15.7"
 
       - name: Package
         shell: bash
         run: |
           set -euo pipefail
           poetry build
-          poetry run pyinstaller --onedir --windowed --name "Tailscale Browser" \
+          python -m PyInstaller --onedir --windowed --name "Tailscale Browser" \
             --icon=icon.ico \
             --paths src \
             --add-data "resources;resources" \
