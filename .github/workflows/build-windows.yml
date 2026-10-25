@@ -40,6 +40,7 @@ jobs:
             --paths src \
             --add-data "resources;resources" \
             --hidden-import PyQt5.QtWebEngineWidgets \
+            --hidden-import PyQt5.sip \
             --exclude-module tkinter \
             --exclude-module matplotlib \
             --exclude-module numpy \
@@ -52,7 +53,7 @@ jobs:
           mkdir -p release
           cp dist/tailscale_browser-*-py3-none-any.whl release/ || true
           cp dist/tailscale_browser-*.tar.gz release/ || true
-          (cd dist && zip -r "../release/Tailscale-Browser-Windows.zip" "Tailscale Browser")
+          python -c 'import shutil; shutil.make_archive("release/Tailscale-Browser-Windows", "zip", "dist", "Tailscale Browser")'
 
       - name: Upload Windows packages
         uses: actions/upload-artifact@v4
