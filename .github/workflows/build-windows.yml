@@ -1,0 +1,58 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - build/windows
+
+jobs:
+  package-windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install project
+        run: poetry install --no-interaction --no-ansi
+
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          poetry build
+          poetry run pyinstaller --onedir --windowed --name "Tailscale Browser" \
+            --icon=icon.ico \
+            --paths src \
+            --add-data "resources;resources" \
+            --hidden-import PyQt5.QtWebEngineWidgets \
+            --exclude-module tkinter \
+            --exclude-module matplotlib \
+            --exclude-module numpy \
+            --exclude-module pandas \
+            --exclude-module scipy \
+            --exclude-module PIL.ImageTk \
+            --exclude-module PIL.ImageQt \
+            --optimize=2 \
+            src/tailscale_browser/main.py
+          mkdir -p release
+          cp dist/tailscale_browser-*-py3-none-any.whl release/ || true
+          cp dist/tailscale_browser-*.tar.gz release/ || true
+          (cd dist && zip -r "../release/Tailscale-Browser-Windows.zip" "Tailscale Browser")
+
+      - name: Upload Windows packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tailscale-Browser-Windows
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
